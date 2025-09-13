@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: regateos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: regateos_db
+      POSTGRES_USER: regateos_user
+      POSTGRES_PASSWORD: regateos_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - regateos-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: regateos-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@regateos.com
+      PGADMIN_DEFAULT_PASSWORD: admin123usemos
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    networks:
+      - regateos-network
+
+volumes:
+  postgres_data:
+
+networks:
+  regateos-network:
+    driver: bridge
