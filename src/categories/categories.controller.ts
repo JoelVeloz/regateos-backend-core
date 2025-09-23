@@ -1,55 +1,53 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { SearchCategoryDto } from './dto/search-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Session, UserSession } from '@thallesp/nestjs-better-auth';
+import { MerchantsService } from '../merchants/merchants.service';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(
+    private readonly categoriesService: CategoriesService,
+    private readonly merchantsService: MerchantsService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryDto, @Session() session: UserSession) {
+    const merchant = await this.merchantsService.getMerchantByUserId(session.user.id);
+    return this.categoriesService.create(createCategoryDto, merchant.id);
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  async findAll(@Session() session: UserSession) {
+    const merchant = await this.merchantsService.getMerchantByUserId(session.user.id);
+    return this.categoriesService.findAll(merchant.id);
+  }
+
+  @Get('search')
+  async search(@Query() searchCategoryDto: SearchCategoryDto, @Session() session: UserSession) {
+    const merchant = await this.merchantsService.getMerchantByUserId(session.user.id);
+    return this.categoriesService.search(searchCategoryDto, merchant.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(id);
-  }
-
-  @Get('name/:name')
-  findByName(@Param('name') name: string) {
-    return this.categoriesService.findByName(name);
+  async findOne(@Param('id') id: string, @Session() session: UserSession) {
+    const merchant = await this.merchantsService.getMerchantByUserId(session.user.id);
+    return this.categoriesService.findOne(id, merchant.id);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCategoryDto: UpdateCategoryDto,
-  ) {
-    return this.categoriesService.update(id, updateCategoryDto);
+  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto, @Session() session: UserSession) {
+    const merchant = await this.merchantsService.getMerchantByUserId(session.user.id);
+    return this.categoriesService.update(id, updateCategoryDto, merchant.id);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(id);
+  async remove(@Param('id') id: string, @Session() session: UserSession) {
+    const merchant = await this.merchantsService.getMerchantByUserId(session.user.id);
+    return this.categoriesService.remove(id, merchant.id);
   }
 }
-

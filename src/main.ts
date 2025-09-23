@@ -14,14 +14,15 @@ async function bootstrap() {
   // Enable validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
+      transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
     }),
   );
 
-  // Crear usuario admin por defecto si no existe
+  // Crear usuarios por defecto (admin y merchant) si no existen
   const usersService = app.get(UsersService);
-  await usersService.createDefaultAdmin();
+  await usersService.createDefaultUsers();
 
   const port = process.env.PORT ?? 4000;
 

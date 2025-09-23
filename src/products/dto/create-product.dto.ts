@@ -1,12 +1,6 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsPositive,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
+import { ProductStatus } from '../enums';
 import { Type } from 'class-transformer';
 
 export class CreateProductDto {
@@ -23,7 +17,20 @@ export class CreateProductDto {
   @IsString()
   description?: string;
 
-  @IsUUID()
   @IsNotEmpty()
   categoryId: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  discountPercent?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  discountFixed?: number;
+
+  @IsOptional()
+  @IsEnum(ProductStatus)
+  status?: ProductStatus;
 }
