@@ -6,6 +6,7 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 // Función para crear la instancia de auth con los servicios
 export const createAuth = (mailService: MailService, prismaService: PrismaService) => {
   return betterAuth({
+    trustedOrigins: ['http://localhost:3000', 'http://localhost:3001'],
     basePath: '/auth',
     database: prismaAdapter(prismaService, { provider: 'postgresql' }),
     emailAndPassword: {
